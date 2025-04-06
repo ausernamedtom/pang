@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { config } from './config';
+import { setupGameSocket } from './sockets/gameSocket';
 
 const app = express();
 const httpServer = createServer(app);
@@ -17,16 +17,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Socket.io connection handling
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+// Setup game socket handlers
+setupGameSocket(io);
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
-
-const PORT = config.port || 3001;
+const PORT = 3001;
 
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
