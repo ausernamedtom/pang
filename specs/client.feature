@@ -1,14 +1,14 @@
-Feature: Minimal Client Application
-  As a player
-  I want to use the basic client application
-  So that I can play a simple table tennis game
+Feature: Mobile Client Application
+  As a mobile player
+  I want to use the mobile client application
+  So that I can play a simple table tennis game on my phone or tablet
 
   Background:
     Given the game server is running
-    And the client application is started
+    And the mobile client application is started
 
   Scenario: Basic Game Flow
-    When the player opens the application
+    When the player opens the mobile application
     Then they should see two options:
       | Create Game |
       | Join Game   |
