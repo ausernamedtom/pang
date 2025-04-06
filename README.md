@@ -11,6 +11,14 @@ A real-time, two-player table tennis game optimized for mobile devices. Challeng
 - Responsive design for various screen sizes
 - Smooth ball physics and paddle interactions
 
+## 📚 Documentation
+
+- [Technical Stack](docs/technical-stack.md) - Detailed information about technologies used
+- [Project Structure](docs/project-structure.md) - How the project is organized
+- [Development Rules](docs/development-rules.md) - Guidelines for development
+- [Contributing](docs/contributing.md) - How to contribute to the project
+- [Commit Convention](docs/commit-convention.md) - How to format commit messages
+
 ## 🎯 How to Play
 
 1. Open the game on your mobile device
@@ -186,37 +194,6 @@ The game is optimized for:
 - Android devices
 - Modern mobile browsers
 - Touch screen controls
-
-## 📝 Commit Convention
-
-This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification. Please format your commit messages as follows:
-
-```
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-Common types include:
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code changes that neither fix bugs nor add features
-- `test`: Adding or modifying tests
-- `chore`: Changes to the build process or auxiliary tools
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📝 License
 
