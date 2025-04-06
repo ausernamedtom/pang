@@ -24,11 +24,19 @@ A real-time, two-player table tennis game optimized for mobile devices. Challeng
 
 ## 🛠️ Technical Stack
 
-- Frontend: HTML5 Canvas, JavaScript/TypeScript
-- Backend: Node.js with Socket.io
+- Frontend: React + TypeScript with Three.js for 3D graphics
+  - React-Three-Fiber for declarative Three.js components
+  - @react-three/drei for useful helpers and abstractions
+  - Zustand for state management
+- Backend: Node.js with Express and Socket.io
+  - Express for REST API endpoints
+  - Socket.io for real-time game state synchronization
+  - TypeScript for type safety
+  - Jest for testing
+  - ESLint + Prettier for code quality
 - Real-time communication: WebSockets
 - Mobile-first responsive design
-- Simple physics engine for ball movement
+- Physics engine for realistic ball movement
 
 ## 📱 Mobile Support
 
