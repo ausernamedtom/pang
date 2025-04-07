@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-import { io, Socket } from 'socket.io-client';
 import { GameProps, GameState } from '../types/game';
+import { WebSocketService } from '../services/websocket';
 
 const GameContainer = styled.div`
   display: flex;
@@ -140,105 +140,121 @@ const Notification: React.FC<{ show: boolean; children: React.ReactNode }> = ({ 
 
 const Game: React.FC<GameProps> = ({ roomCode, isHost }) => {
   const navigate = useNavigate();
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [ws, setWs] = useState<WebSocketService | null>(null);
+  const [playerSide, setPlayerSide] = useState<'left' | 'right' | null>(null);
   const [gameState, setGameState] = useState<GameState>({
     ball: { x: 400, y: 300 },
     paddles: {
-      player1: { x: 350, y: 560 },
-      player2: { x: 350, y: 20 }
+      left: { x: 350, y: 560 },
+      right: { x: 350, y: 20 }
     },
-    score: { player1: 0, player2: 0 }
+    score: { left: 0, right: 0 }
   });
-  const [isWaiting, setIsWaiting] = useState(isHost);
+  const [isWaiting, setIsWaiting] = useState(true);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
 
   const gameContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3001');
-    setSocket(newSocket);
+    const wsService = new WebSocketService('ws://localhost:3001');
+    setWs(wsService);
 
-    newSocket.emit('joinRoom', { roomCode });
+    wsService.connect().then(() => {
+      // Set up event handlers
+      wsService.on<{ side: 'left' | 'right' | null }>('player_assigned', (data) => {
+        setPlayerSide(data.side);
+        if (data.side) {
+          setNotificationMessage(`You are playing on the ${data.side} side`);
+          setShowNotification(true);
+          setTimeout(() => setShowNotification(false), 3000);
+        }
+      });
 
-    newSocket.on('gameState', (state: GameState) => {
-      setGameState(state);
-      setIsWaiting(false);
-    });
+      wsService.on<GameState>('game_state', (state) => {
+        setGameState(state);
+        setIsWaiting(false);
+      });
 
-    newSocket.on('playerJoined', () => {
-      setIsWaiting(false);
-      setNotificationMessage('Player joined the game!');
+      wsService.on<{ message: string }>('error', (data) => {
+        setNotificationMessage(data.message);
+        setShowNotification(true);
+        setTimeout(() => setShowNotification(false), 3000);
+      });
+    }).catch((error) => {
+      console.error('Failed to connect:', error);
+      setNotificationMessage('Failed to connect to game server');
       setShowNotification(true);
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 3000);
     });
 
     return () => {
-      newSocket.disconnect();
+      wsService.disconnect();
     };
-  }, [roomCode]);
+  }, []);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!gameContainerRef.current || !socket || isWaiting) return;
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!ws || !playerSide || isWaiting) return;
 
-      const rect = gameContainerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const paddleX = Math.max(0, Math.min(700, x));
-
-      socket.emit('paddleMove', { x: paddleX });
-    };
-
-    const container = gameContainerRef.current;
-    if (container) {
-      container.addEventListener('mousemove', handleMouseMove);
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener('mousemove', handleMouseMove);
+      switch (e.key) {
+        case 'ArrowUp':
+          ws.send({
+            type: 'paddle_move',
+            data: { side: playerSide, direction: 'up' }
+          });
+          break;
+        case 'ArrowDown':
+          ws.send({
+            type: 'paddle_move',
+            data: { side: playerSide, direction: 'down' }
+          });
+          break;
+        case ' ':
+          if (isHost) {
+            ws.send({ type: 'start_game' });
+          }
+          break;
+        case 'r':
+          if (isHost) {
+            ws.send({ type: 'reset_game' });
+          }
+          break;
       }
     };
-  }, [socket, isWaiting]);
 
-  const copyRoomCode = () => {
-    navigator.clipboard.writeText(roomCode);
-  };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [ws, playerSide, isHost, isWaiting]);
 
   return (
-    <GameContainer>
-      <Score>
-        {gameState.score.player1} - {gameState.score.player2}
-      </Score>
-      <GameCanvas ref={gameContainerRef}>
-        <Notification show={showNotification}>
-          {notificationMessage}
-        </Notification>
-        {isHost && (
-          <RoomCodeContainer>
-            <RoomCode>Room Code: {roomCode}</RoomCode>
-            <CopyButton onClick={copyRoomCode}>Copy</CopyButton>
-          </RoomCodeContainer>
-        )}
+    <GameContainer ref={gameContainerRef}>
+      <GameCanvas>
+        <Ball x={gameState.ball.x} y={gameState.ball.y} />
+        <Paddle position={gameState.paddles.left.x} />
+        <OpponentPaddle position={gameState.paddles.right.x} />
+        
         {isWaiting && (
           <WaitingMessage>
-            <h2>Waiting for opponent...</h2>
-            <p>Share the room code to invite a friend</p>
+            Waiting for opponent...
+            {isHost && <div>Share the room code to start playing!</div>}
           </WaitingMessage>
         )}
-        <OpponentPaddle 
-          position={gameState.paddles[isHost ? 'player2' : 'player1'].x} 
-        />
-        <Ball 
-          x={gameState.ball.x} 
-          y={gameState.ball.y} 
-        />
-        <Paddle 
-          position={gameState.paddles[isHost ? 'player1' : 'player2'].x} 
-        />
+
+        <RoomCodeContainer>
+          <RoomCode>Room: {roomCode}</RoomCode>
+          <CopyButton onClick={() => navigator.clipboard.writeText(roomCode)}>
+            Copy Code
+          </CopyButton>
+        </RoomCodeContainer>
       </GameCanvas>
+
+      <Score>
+        {gameState.score.left} - {gameState.score.right}
+      </Score>
+
+      <Notification show={showNotification}>
+        {notificationMessage}
+      </Notification>
     </GameContainer>
   );
 };

@@ -8,10 +8,20 @@ import {
     SPIN
 } from '../config/physics';
 
+let physicsService: PhysicsService | null = null;
+
+export function setupPhysics(): PhysicsService {
+    if (!physicsService) {
+        physicsService = new PhysicsService();
+    }
+    return physicsService;
+}
+
 export class PhysicsService {
     private engine: Matter.Engine;
     private world: Matter.World;
     private bodies: Map<string, Matter.Body> = new Map();
+    private ball: Matter.Body | null = null;
 
     constructor() {
         // Create physics engine
@@ -131,5 +141,50 @@ export class PhysicsService {
         ];
 
         walls.forEach(wall => Matter.World.add(this.engine.world, wall));
+    }
+
+    initialize(): void {
+        // Create walls
+        const walls = [
+            Matter.Bodies.rectangle(WORLD.WIDTH / 2, 0, WORLD.WIDTH, 20, { isStatic: true }), // Top
+            Matter.Bodies.rectangle(WORLD.WIDTH / 2, WORLD.HEIGHT, WORLD.WIDTH, 20, { isStatic: true }), // Bottom
+            Matter.Bodies.rectangle(0, WORLD.HEIGHT / 2, 20, WORLD.HEIGHT, { isStatic: true }), // Left
+            Matter.Bodies.rectangle(WORLD.WIDTH, WORLD.HEIGHT / 2, 20, WORLD.HEIGHT, { isStatic: true }) // Right
+        ];
+
+        Matter.World.add(this.world, walls);
+    }
+
+    serveBall(): void {
+        if (this.ball) {
+            Matter.World.remove(this.world, this.ball);
+        }
+
+        this.ball = Matter.Bodies.circle(WORLD.WIDTH / 2, WORLD.HEIGHT / 2, 10, {
+            restitution: 1,
+            friction: 0,
+            frictionAir: 0
+        });
+
+        // Serve ball with random direction
+        const angle = Math.random() * Math.PI / 2 - Math.PI / 4; // -45 to 45 degrees
+        const speed = 5;
+        Matter.Body.setVelocity(this.ball, {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+        });
+
+        Matter.World.add(this.world, this.ball);
+    }
+
+    reset(): void {
+        if (this.ball) {
+            Matter.World.remove(this.world, this.ball);
+            this.ball = null;
+        }
+    }
+
+    getBallPosition(): { x: number; y: number } | null {
+        return this.ball ? this.ball.position : null;
     }
 } 

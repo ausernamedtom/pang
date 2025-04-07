@@ -1,37 +1,52 @@
-import { Server } from 'socket.io';
+import { WebSocketServer, WebSocket } from 'ws';
 import { GameService } from '../services/game';
 import { PhysicsService } from '../services/physics';
 
-export function setupGameSocket(io: Server): void {
+export function setupGameSocket(wss: WebSocketServer): void {
     const physicsService = new PhysicsService();
     const gameService = new GameService(physicsService);
 
-    io.on('connection', (socket) => {
+    wss.on('connection', (ws: WebSocket) => {
         // Handle player connection
-        const playerId = socket.id;
+        const playerId = Math.random().toString(36).substring(7);
         const side = gameService.addPlayer(playerId);
 
         // Send initial game state
-        socket.emit('game_state', gameService.getSerializedState());
+        ws.send(JSON.stringify({
+            type: 'game_state',
+            data: gameService.getSerializedState()
+        }));
 
-        // Handle player movement
-        socket.on('move_paddle', (data: { direction: 'up' | 'down' }) => {
-            gameService.movePaddle(side, data.direction);
-        });
+        // Send player assignment
+        ws.send(JSON.stringify({
+            type: 'player_assigned',
+            data: { side }
+        }));
 
-        // Handle game start
-        socket.on('start_game', () => {
-            gameService.serveBall();
-        });
-
-        // Handle game reset
-        socket.on('reset_game', () => {
-            gameService.reset();
-            gameService.initialize();
+        // Handle messages from client
+        ws.on('message', (message: string) => {
+            try {
+                const data = JSON.parse(message);
+                
+                switch (data.type) {
+                    case 'paddle_move':
+                        gameService.movePaddle(side, data.data.direction);
+                        break;
+                    case 'start_game':
+                        gameService.serveBall();
+                        break;
+                    case 'reset_game':
+                        gameService.reset();
+                        gameService.initialize();
+                        break;
+                }
+            } catch (error) {
+                console.error('Error handling message:', error);
+            }
         });
 
         // Handle player disconnection
-        socket.on('disconnect', () => {
+        ws.on('close', () => {
             gameService.removePlayer(playerId);
         });
     });

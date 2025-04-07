@@ -4,13 +4,13 @@ export interface Position {
 }
 
 export interface Paddles {
-  player1: Position;
-  player2: Position;
+  left: Position;
+  right: Position;
 }
 
 export interface Score {
-  player1: number;
-  player2: number;
+  left: number;
+  right: number;
 }
 
 export interface GameState {
@@ -22,4 +22,7 @@ export interface GameState {
 export interface GameProps {
   roomCode: string;
   isHost: boolean;
-} 
+}
+
+export type PaddleDirection = 'up' | 'down';
+export type PlayerSide = 'left' | 'right'; 

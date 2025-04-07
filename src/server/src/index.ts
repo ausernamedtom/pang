@@ -1,31 +1,30 @@
 import express from 'express';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-import cors from 'cors';
+import { WebSocketServer } from 'ws';
 import { setupGameSocket } from './sockets/gameSocket';
+import { setupPhysics } from './services/physics';
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
+const port = process.env.PORT || 3001;
+
+// Create HTTP server
+const server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
 
-app.use(cors({
-  origin: '*'
-}));
+// Create WebSocket server
+const wss = new WebSocketServer({ server });
 
-// Basic health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
+// Setup game socket
+setupGameSocket(wss);
 
-// Setup game socket handlers
-setupGameSocket(io);
+// Setup physics service
+const physicsService = setupPhysics();
 
-const PORT = 3001;
-httpServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received. Closing HTTP server...');
+    server.close(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+    });
 }); 

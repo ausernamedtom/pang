@@ -20,4 +20,27 @@ export interface JoinRoomResponse {
   success: boolean;
   message?: string;
   playerId?: string;
-} 
+}
+
+export interface Position {
+    x: number;
+    y: number;
+}
+
+export interface Paddles {
+    left: Position;
+    right: Position;
+}
+
+export interface Score {
+    left: number;
+    right: number;
+}
+
+export interface GameState {
+    ball: Position;
+    paddles: Paddles;
+    score: Score;
+}
+
+export type PlayerSide = 'left' | 'right'; 
