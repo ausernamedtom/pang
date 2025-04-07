@@ -34,18 +34,24 @@ The project follows a strict separation of concerns with the following structure
 
 ## Directory Responsibilities
 
+### Client
 - **Components**: UI elements that can be reused across the application
 - **Scenes**: Three.js scene setups and game logic
 - **Models**: 3D assets and their configurations
 - **Physics**: Game physics calculations and collision detection
 - **State**: Application state management
+
+### Server
 - **Controllers**: Server-side request handling
 - **Services**: Business logic and data processing
 - **Sockets**: Real-time communication handlers
 
-## Benefits
+### Shared
+- **Types**: Shared TypeScript type definitions
+- **Constants**: Shared configuration values
+- **Utils**: Shared utility functions
 
-This structure ensures:
+## Benefits
 - Clear separation of concerns
 - Easy navigation and maintenance
 - Better code organization

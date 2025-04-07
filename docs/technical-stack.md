@@ -17,6 +17,31 @@
 - Jest (v29.0.0+) for testing
 - ESLint (v8.0.0+) + Prettier (v3.0.0+) for code quality
 
+## Infrastructure
+- Real-time communication: WebSockets
+- Mobile-first responsive design
+- Physics engine for realistic ball movement
+
+## Development Tools
+- TypeScript for type safety
+- ESLint + Prettier for code formatting
+- Jest for testing
+- Vite for build tooling
+- Socket.io for real-time communication
+
+## Analytics & Monitoring
+- Firebase Crashlytics
+  - Cross-platform crash reporting
+  - Real-time alerting
+  - Crash analytics and trends
+  - Stack trace analysis
+- Google Analytics
+  - User behavior tracking
+  - Game performance metrics
+  - User engagement analytics
+  - Custom event tracking
+  - A/B testing capabilities
+
 ## Additional Technologies
 - Real-time communication: WebSockets
 - Mobile-first responsive design
