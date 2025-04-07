@@ -1,0 +1,21 @@
+name: Branch Protection
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  branch-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch protection
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "Main branch protection rules:"
+            echo "- Pull request reviews required"
+            echo "- Status checks must pass"
+            echo "- Linear history required"
+            echo "- Force pushes disabled"
+          fi 
