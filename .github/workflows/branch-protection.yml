@@ -1,4 +1,4 @@
-name: Branch Protection
+name: Branch Protection Checks
 
 on:
   push:
@@ -7,15 +7,34 @@ on:
     branches: [ main ]
 
 jobs:
-  branch-protection:
+  protection-checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Check branch protection
+      - name: Check PR Requirements
+        if: github.event_name == 'pull_request'
         run: |
-          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
-            echo "Main branch protection rules:"
-            echo "- Pull request reviews required"
-            echo "- Status checks must pass"
-            echo "- Linear history required"
-            echo "- Force pushes disabled"
+          # Check if PR has at least one reviewer
+          if [ -z "$(gh pr view ${{ github.event.pull_request.number }} --json reviewers --jq '.reviewers[]')" ]; then
+            echo "Error: Pull request requires at least one reviewer"
+            exit 1
+          fi
+          
+          # Check if PR has a description
+          if [ -z "$(gh pr view ${{ github.event.pull_request.number }} --json body --jq '.body')" ]; then
+            echo "Error: Pull request requires a description"
+            exit 1
+          fi
+          
+          # Check if PR has been approved
+          if [ "$(gh pr view ${{ github.event.pull_request.number }} --json reviewDecision --jq '.reviewDecision')" != "APPROVED" ]; then
+            echo "Error: Pull request requires approval"
+            exit 1
+          fi
+
+      - name: Check Commit History
+        run: |
+          # Check if the branch has a linear history
+          if [ "$(git rev-list --count --merges ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})" -gt 0 ]; then
+            echo "Error: Branch must have a linear history (no merge commits)"
+            exit 1
           fi 
