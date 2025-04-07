@@ -19,6 +19,45 @@ We love contributions! Here's how you can help:
 4. Ensure all tests pass
 5. Follow our [Commit Convention](commit-convention.md)
 
+## Bug Reports
+
+We use a standardized format for bug reports to ensure all necessary information is provided. Please follow the [Bug Report Template](bug-report-template.md) when creating new issues.
+
+### Required Sections
+- Title: [Component] Brief description
+- Description
+- Impact
+- Steps to Reproduce
+- Expected Behavior
+- Actual Behavior
+- Environment
+- Screenshots/Logs (if applicable)
+- Additional Context
+- Reproduction Rate
+- Priority
+
+### Label Usage
+
+All bug reports should include appropriate labels:
+
+1. Component Labels (at least one required):
+   - `server`: Server-related issues
+   - `web-client`: Web client issues
+   - `mobile-client`: Mobile client issues
+
+2. Priority Labels (one required):
+   - `critical`: Blocks core functionality
+   - `high`: Affects major features
+   - `medium`: Affects minor features
+   - `low`: Cosmetic or minor issues
+
+3. Type Labels (required):
+   - `bug`: For bug reports
+   - `enhancement`: For feature requests
+   - `documentation`: For documentation updates
+
+Example: A high-priority bug in the web client affecting game physics would use labels: `bug`, `web-client`, `high`
+
 ## Pull Request Process
 
 1. Update the README.md with details of changes if needed
