@@ -1,4 +1,5 @@
 import { GameRoom, Player, CreateRoomResponse, JoinRoomResponse } from '../types/game';
+import * as crypto from 'crypto';
 
 class GameRoomService {
   private rooms: Map<string, GameRoom> = new Map();

@@ -1,6 +1,6 @@
 import * as Matter from 'matter-js';
 import { PhysicsService } from './physics';
-import { BALL_RADIUS } from '../config/physics';
+import { WORLD } from '../config/physics';
 
 interface BallState {
     position: { x: number; y: number };
@@ -70,9 +70,9 @@ export class BallMovementService {
 
         return (
             this.ball.position.x < 0 ||
-            this.ball.position.x > BALL_RADIUS ||
+            this.ball.position.x > WORLD.WIDTH ||
             this.ball.position.y < 0 ||
-            this.ball.position.y > BALL_RADIUS
+            this.ball.position.y > WORLD.HEIGHT
         );
     }
 
